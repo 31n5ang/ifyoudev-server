@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <springProperty scope="context" name="LOG_FILE_PATH" source="logging.file.path" defaultValue="./logs" />
+    <springProperty scope="context" name="LOG_FILE_NAME" source="logging.file.name" defaultValue="ifyoudev-server" />
+    <springProperty scope="context" name="LOG_MAX_FILE_SIZE" source="logging.file.max-size" defaultValue="10MB" />
+    <springProperty scope="context" name="LOG_MAX_HISTORY" source="logging.file.max-history" defaultValue="30" />
+
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter" />
+
+    <property name="CONSOLE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%15.15thread{15}] %clr(%5level) %magenta(%-35.35logger{35}) - %msg%n" />
+    <property name="FILE_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%15.15thread{15}] %5level %-35.35logger{35} - %msg%n" />
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd.HH:mm}.%i.log</fileNamePattern>
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+    </appender>
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_PATH}/error-${LOG_FILE_NAME}.%d{yyyy-MM-dd.HH:mm}.%i.log</fileNamePattern>
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+    <appender name="SQL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${FILE_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_PATH}/sql-${LOG_FILE_NAME}.%d{yyyy-MM-dd.HH:mm}.%i.log</fileNamePattern>
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- 아래부터는 프로필 별 설정 -->
+
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+        <logger name="io.ifyoudev.ifyoudevserver" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+        <logger name="org.jooq.tools.LoggerListener" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+    </springProfile>
+    <springProfile name="dev">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+            <appender-ref ref="ERROR_FILE" />
+        </root>
+        <logger name="io.ifyoudev.ifyoudevserver" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE" />
+        </logger>
+        <logger name="org.jooq.tools.LoggerListener" level="DEBUG" additivity="false">
+            <appender-ref ref="SQL_FILE" />
+        </logger>
+    </springProfile>
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="FILE" />
+            <appender-ref ref="ERROR_FILE" />
+        </root>
+        <logger name="org.jooq.tools.LoggerListener" level="DEBUG" additivity="false">
+            <appender-ref ref="SQL_FILE" />
+        </logger>
+    </springProfile>
+</configuration>
