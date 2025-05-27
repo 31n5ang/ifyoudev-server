@@ -1,0 +1,92 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'nu.studer.jooq' version '9.0'
+}
+
+ext {
+    jooqVersion = '3.19.14'
+}
+
+group = 'io.ifyoudev'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    jooqGenerator "org.jooq:jooq:${jooqVersion}"
+    jooqGenerator "org.jooq:jooq-meta:${jooqVersion}"
+    jooqGenerator "com.mysql:mysql-connector-j"
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+/** jOOQ Generator **/
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', 'build/generated-src/jooq/main']
+        }
+    }
+}
+
+def jooqJdbcUrl = System.getenv("JOOQ_JDBC_URL") ?: "jdbc:mysql://localhost:3306/IFYOUDEV"
+def jooqJdbcUser = System.getenv("JOOQ_JDBC_USER") ?: "root"
+def jooqJdbcPassword = System.getenv("JOOQ_JDBC_PASSWORD") ?: "root"
+
+jooq {
+    version = jooqVersion
+    configurations {
+        main {
+            generationTool {
+                jdbc {
+                    driver = 'com.mysql.cj.jdbc.Driver'
+                    url = jooqJdbcUrl
+                    user = jooqJdbcUser
+                    password = jooqJdbcPassword
+                }
+
+                generator {
+                    database {
+                        name = 'org.jooq.meta.mysql.MySQLDatabase'
+                        includes = '.*'
+                        excludes = ''
+                    }
+                    target {
+                        packageName = 'io.ifyoudev.ifyoudevserver.generated'
+                        directory = 'build/generated-src/jooq/main'
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** jOOQ Generator end **/

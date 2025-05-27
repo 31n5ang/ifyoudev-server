@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: if(you==dev)
+  profiles:
+    active: local
