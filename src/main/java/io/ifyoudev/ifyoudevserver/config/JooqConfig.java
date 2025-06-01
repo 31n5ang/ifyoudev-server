@@ -11,6 +11,7 @@ public class JooqConfig {
     @Bean
     public DefaultConfigurationCustomizer jooqDefaultConfigurationCustomizer() {
         return configuration -> configuration.settings()
+                .withRenderSchema(false)
                 .withExecuteUpdateWithoutWhere(ExecuteWithoutWhere.THROW)
                 .withExecuteDeleteWithoutWhere(ExecuteWithoutWhere.THROW);
     }
