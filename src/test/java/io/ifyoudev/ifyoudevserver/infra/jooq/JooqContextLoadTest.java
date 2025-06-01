@@ -1,4 +1,4 @@
-package io.ifyoudev.ifyoudevserver;
+package io.ifyoudev.ifyoudevserver.infra.jooq;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
