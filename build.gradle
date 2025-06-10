@@ -3,6 +3,7 @@ buildscript {
         jooqVersion = '3.19.14'
         jooqScriptName = 'Ifyoudev'
         flywayVersion = '11.7.2'
+        snippetsDir = file('build/generated-snippets') // for spring rest docs
     }
 
     dependencies {
@@ -16,6 +17,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
     id 'nu.studer.jooq' version '9.0' // jOOQ DSL 생성기
     id 'org.flywaydb.flyway' version "${flywayVersion}" // flyway
+    id 'org.asciidoctor.jvm.convert' version '4.0.4' // spring rest docs
 }
 
 group = 'io.ifyoudev'
@@ -31,6 +33,7 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    asciidoctorExt // for spring rest docs
 }
 
 repositories {
@@ -38,11 +41,18 @@ repositories {
 }
 
 dependencies {
+    // jwt
+    implementation 'com.auth0:java-jwt:4.4.0'
+
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
     // web
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // lombok
@@ -66,10 +76,19 @@ dependencies {
     // flyway
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-mysql'
+
+    // spring rest docs
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    outputs.dir snippetsDir // for spring rest docs
+}
+
+test {
+    outputs.dir snippetsDir
 }
 
 /** jOOQ Generator **/
@@ -161,7 +180,7 @@ flyway {
     baselineOnMigrate = true
 }
 
-/** 의존성 관리 **/
+/** flywayMigrate -> jooqGenerate 순서로 실행되도록 의존성 관리 **/
 tasks.named('compileJava').configure {
     dependsOn tasks.named("generate${jooqScriptName}Jooq")
 }
@@ -169,3 +188,30 @@ tasks.named('compileJava').configure {
 tasks.named("generate${jooqScriptName}Jooq").configure {
     dependsOn tasks.named('flywayMigrate')
 }
+
+/** spring rest docs config **/
+asciidoctor {
+    configurations 'asciidoctorExt'
+    baseDirFollowsSourceFile()
+    inputs.dir snippetsDir
+    dependsOn test
+}
+
+asciidoctor.doFirst {
+    delete file('src/main/resources/static/docs')
+}
+
+tasks.register('copyDocument', Copy) {
+    dependsOn tasks.named('asciidoctor')
+    from file('build/docs/asciidoc') // 복사할 원본 디렉토리
+    into file('src/main/resources/static/docs') // 복사될 대상 디렉토리
+}
+
+tasks.named('build').configure {
+    dependsOn tasks.named('copyDocument')
+}
+
+/**
+ * build 흐름
+ * flywayMigrate -> generateIfyoudevJooq -> ... -> test -> asciidoctor -> copyDocument -> build
+ */
