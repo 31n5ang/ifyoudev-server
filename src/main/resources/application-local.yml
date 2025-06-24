@@ -3,4 +3,13 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root
-    url: jdbc:mysql://localhost:3307/ifyoudev
+    url: jdbc:mysql://localhost:3307/ifyoudev?serverTimezone=Asia/Seoul&allowMultiQueries=true
+
+  jooq:
+    sql-dialect: mysql
+
+auth:
+  jwt:
+    secret-key: 1234567890abcdefghijk!@#$%^&*()_+
+    access-expires-in-seconds: 3600 # 1시간
+    refresh-expires-in-seconds: 604800
