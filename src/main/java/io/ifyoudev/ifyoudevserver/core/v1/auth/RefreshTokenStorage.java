@@ -10,15 +10,13 @@ public interface RefreshTokenStorage {
      * @param userUuid 사용자의 UUID
      * @param tokenValue 리프레시 토큰 값
      * @param expirationMills 만료 시간(밀리초 단위)
-     * @author 31n5ang
      */
-    void update(String userUuid, String tokenValue, long expirationMills);
+    void update(String userUuid, String tokenValue);
 
     /**
      * 사용자의 리프레시 토큰을 조회합니다.
      * @param userUuid 조회할 사용자의 UUID
      * @return 저장된 리프레시 토큰 값
-     * @author 31n5ang
      */
     Optional<String> findByUserUuid(String userUuid);
 
@@ -26,7 +24,6 @@ public interface RefreshTokenStorage {
      * 사용자의 리프레시 토큰을 삭제합니다.
      * @param userUuid 삭제할 사용자의 UUID
      * @return 삭제를 수행했다면 true, 삭제할 토큰이 존재하지 않으면 false
-     * @author 31n5ang
      */
     boolean deleteByUserUuid(String userUuid);
 }
