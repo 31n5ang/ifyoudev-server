@@ -1,1 +1,3 @@
 rootProject.name = 'ifyoudev-server'
+include 'jooq-custom'
+
