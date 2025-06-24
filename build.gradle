@@ -3,6 +3,7 @@ buildscript {
         jooqVersion = '3.19.14'
         jooqScriptName = 'Ifyoudev'
         flywayVersion = '11.7.2'
+        mysqlConnectorVersion = '9.2.0'
         snippetsDir = file('build/generated-snippets') // for spring rest docs
     }
 
@@ -49,6 +50,8 @@ dependencies {
 
     // web
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -71,7 +74,8 @@ dependencies {
     implementation "org.jooq:jooq:${jooqVersion}"
     jooqGenerator "org.jooq:jooq:${jooqVersion}"
     jooqGenerator "org.jooq:jooq-meta:${jooqVersion}"
-    jooqGenerator 'com.mysql:mysql-connector-j'
+    jooqGenerator "com.mysql:mysql-connector-j:${mysqlConnectorVersion}"
+    jooqGenerator project(":jooq-custom")
 
     // flyway
     implementation 'org.flywaydb:flyway-core'
@@ -91,7 +95,7 @@ test {
     outputs.dir snippetsDir
 }
 
-/** jOOQ Generator **/
+/** jOOQ Generator */
 sourceSets {
     main {
         java {
@@ -165,18 +169,21 @@ jooq {
                     target {
                         directory = 'src/generated'
                     }
+
+                    strategy {
+                        name = 'jooq.custom.generator.JPrefixGeneratorStrategy'
+                    }
                 }
             }
         }
     }
 }
 
-/** flyway config **/
+/** flyway config */
 flyway {
     url = "jdbc:mysql://${dbHost}:${dbPort}/${dbName}"
     user = "${dbUser}"
     password = "${dbPasswd}"
-    locations = ['classpath:db/migration']
     baselineOnMigrate = true
 }
 
