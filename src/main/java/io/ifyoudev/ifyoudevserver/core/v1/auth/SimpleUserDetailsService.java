@@ -1,8 +1,8 @@
 package io.ifyoudev.ifyoudevserver.core.v1.auth;
 
 import io.ifyoudev.ifyoudevserver.core.v1.auth.exception.EmailNotFoundException;
-import io.ifyoudev.ifyoudevserver.core.v1.users.UserRepository;
 import io.ifyoudev.ifyoudevserver.core.v1.users.dto.UserWithRolesDto;
+import io.ifyoudev.ifyoudevserver.core.v1.users.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;

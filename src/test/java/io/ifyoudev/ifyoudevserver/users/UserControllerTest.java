@@ -2,11 +2,11 @@ package io.ifyoudev.ifyoudevserver.users;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.ifyoudev.ifyoudevserver.core.v1.users.UserController;
-import io.ifyoudev.ifyoudevserver.core.v1.users.UserRepository;
 import io.ifyoudev.ifyoudevserver.core.v1.users.UserService;
 import io.ifyoudev.ifyoudevserver.core.v1.users.dto.SignUpDto;
 import io.ifyoudev.ifyoudevserver.core.v1.users.dto.SignUpSuccessDto;
 import io.ifyoudev.ifyoudevserver.core.v1.users.validator.UniqueEmailValidator;
+import io.ifyoudev.ifyoudevserver.core.v1.users.UserRepository;
 import org.jooq.generated.tables.pojos.Users;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
