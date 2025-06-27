@@ -25,9 +25,9 @@ public class SimpleUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new EmailNotFoundException(email + " 이메일이 존재하지 않습니다."));
 
         return AuthUser.create(
-                userWithRoles.users().getEmail(),
-                userWithRoles.users().getPassword(),
-                userWithRoles.users().getUuid(),
+                userWithRoles.userDto().getEmail(),
+                userWithRoles.userDto().getPassword(),
+                userWithRoles.userDto().getUuid(),
                 userWithRoles.roleNames()
         );
     }

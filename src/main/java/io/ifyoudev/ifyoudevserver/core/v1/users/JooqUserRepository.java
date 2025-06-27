@@ -2,6 +2,7 @@ package io.ifyoudev.ifyoudevserver.core.v1.users;
 
 import io.ifyoudev.ifyoudevserver.core.v1.roles.RoleType;
 import io.ifyoudev.ifyoudevserver.core.v1.users.dto.UserCreateDto;
+import io.ifyoudev.ifyoudevserver.core.v1.users.dto.UserDto;
 import io.ifyoudev.ifyoudevserver.core.v1.users.dto.UserWithRolesDto;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
@@ -10,7 +11,6 @@ import org.jooq.Result;
 import org.jooq.generated.tables.JRoles;
 import org.jooq.generated.tables.JUserRoleMap;
 import org.jooq.generated.tables.JUsers;
-import org.jooq.generated.tables.pojos.Users;
 import org.jooq.generated.tables.records.UserRoleMapRecord;
 import org.jooq.generated.tables.records.UsersRecord;
 import org.jooq.impl.DSL;
@@ -66,19 +66,19 @@ public class JooqUserRepository implements UserRepository {
     }
 
     @Override
-    public Optional<Users> findOneByEmail(String email) {
+    public Optional<UserDto> findOneByEmail(String email) {
         return dslContext
                 .selectFrom(USERS)
                 .where(USERS.EMAIL.eq(email))
-                .fetchOptionalInto(Users.class);
+                .fetchOptionalInto(UserDto.class);
     }
 
     @Override
-    public Optional<Users> findOneByUuid(String uuid) {
+    public Optional<UserDto> findOneByUuid(String uuid) {
         return dslContext
                 .selectFrom(USERS)
                 .where(USERS.UUID.eq(uuid))
-                .fetchOptionalInto(Users.class);
+                .fetchOptionalInto(UserDto.class);
     }
 
     @Override
@@ -95,10 +95,10 @@ public class JooqUserRepository implements UserRepository {
                 .where(USERS.EMAIL.eq(email))
                 .groupBy(USERS.USER_ID)
                 .fetchOptional(record -> {
-                    Users users = record.into(USERS).into(Users.class);
+                    UserDto userDto = record.into(USERS).into(UserDto.class);
                     String roleNamesString = record.get("roleNames", String.class);
                     List<String> roleNames = List.of(roleNamesString.split(","));
-                    return new UserWithRolesDto(users, roleNames);
+                    return new UserWithRolesDto(userDto, roleNames);
                 });
     }
 
