@@ -1,0 +1,17 @@
+CREATE TABLE LOCATIONS
+(
+    location_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    sido VARCHAR(50) NOT NULL,
+    sigungu VARCHAR(50)
+) ENGINE=InnoDB;
+
+CREATE TABLE POST_DETAILS
+(
+    post_detail_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    post_id BIGINT NOT NULL,
+    deadline DATETIME,
+    is_online BOOLEAN,
+    location_id BIGINT,
+    CONSTRAINT FOREIGN KEY (post_id) REFERENCES POSTS(post_id),
+    CONSTRAINT FOREIGN KEY (location_id) REFERENCES LOCATIONS(location_id)
+) ENGINE=InnoDB;
