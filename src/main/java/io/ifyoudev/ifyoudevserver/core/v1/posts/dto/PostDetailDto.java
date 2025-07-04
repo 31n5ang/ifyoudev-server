@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostDetailsDto {
+public class PostDetailDto {
     private Long postDetailId;
     private Long postId;
     private LocalDateTime deadline;

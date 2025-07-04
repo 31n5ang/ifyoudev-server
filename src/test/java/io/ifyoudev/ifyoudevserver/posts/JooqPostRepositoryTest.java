@@ -1,6 +1,6 @@
 package io.ifyoudev.ifyoudevserver.posts;
 
-import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDetailsDto;
+import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDetailDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostTagDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.repository.JooqPostRepository;
@@ -82,8 +82,8 @@ class JooqPostRepositoryTest {
     }
 
     @Test
-    @DisplayName("savePostDetails(..) 성공")
-    void savePostDetailsSuccess() {
+    @DisplayName("savePostDetail(..) 성공")
+    void savePostDetailSuccess() {
         // given
         PostDto postDto = new PostDto(
                 null,
@@ -101,7 +101,7 @@ class JooqPostRepositoryTest {
 
         final Long postId = postsRecord.getPostId();
 
-        PostDetailsDto postDetailsDto = new PostDetailsDto(
+        PostDetailDto postDetailDto = new PostDetailDto(
                 null,
                 postId,
                 LocalDateTime.now().plusDays(1),
@@ -110,9 +110,50 @@ class JooqPostRepositoryTest {
         );
 
         // when
-        Long postDetailsId = jooqPostRepository.savePostDetails(testUserUuid, postDetailsDto);
+        Long postDetailId = jooqPostRepository.savePostDetail(testUserUuid, postDetailDto);
 
         // then
-        assertThat(postDetailsId).isNotNull();
+        assertThat(postDetailId).isNotNull();
+    }
+
+    @Test
+    @DisplayName("savePostTags(..) 성공")
+    void savePostTagsSuccess() {
+        // given
+        PostDto postDto = new PostDto(
+                null,
+                UUID.randomUUID().toString(),
+                "제목입니다.",
+                "본문입니다.",
+                testUserId,
+                false,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        List<PostTagsRecord> postTagsRecords = List.of(
+                dslContext.newRecord(JPostTags.POST_TAGS, new PostTagDto(1L, "Java")),
+                dslContext.newRecord(JPostTags.POST_TAGS, new PostTagDto(2L, "Python")),
+                dslContext.newRecord(JPostTags.POST_TAGS, new PostTagDto(3L, "C++")),
+                dslContext.newRecord(JPostTags.POST_TAGS, new PostTagDto(5L, "Kotlin"))
+        );
+        dslContext.batchInsert(postTagsRecords).execute();
+
+        PostsRecord postsRecord = dslContext.newRecord(JPosts.POSTS, postDto);
+        postsRecord.insert();
+
+        final Long postId = postsRecord.getPostId();
+        final List<Integer> postTagIds = List.of(1, 2, 3, 5);
+
+        // when
+        jooqPostRepository.savePostTags(postId, postTagIds);
+        List<Integer> savedTagIds = dslContext
+                .select(JPostTagMap.POST_TAG_MAP.TAG_ID)
+                .from(JPostTagMap.POST_TAG_MAP)
+                .where(JPostTagMap.POST_TAG_MAP.POST_ID.eq(postId))
+                .fetchInto(Integer.class);
+
+        // then
+        Assertions.assertThat(savedTagIds).contains(1, 2, 3, 5);
     }
 }

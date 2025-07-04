@@ -2,7 +2,7 @@ package io.ifyoudev.ifyoudevserver.core.v1.posts;
 
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostCreateDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostCreateSuccessDto;
-import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDetailsDto;
+import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDetailDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.exception.PostCreateException;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.repository.PostRepository;
@@ -86,13 +86,13 @@ public class PostCreateManager {
             throw new PostCreateException("Post ID가 존재하지 않습니다.");
         }
 
-        PostDetailsDto postDetailsDto = new PostDetailsDto();
-        postDetailsDto.setDeadline(postCreateDto.deadline());
-        postDetailsDto.setLocationId(postCreateDto.locationId());
-        postDetailsDto.setIsOnline(postCreateDto.isOnline());
+        PostDetailDto postDetailDto = new PostDetailDto();
+        postDetailDto.setDeadline(postCreateDto.deadline());
+        postDetailDto.setLocationId(postCreateDto.locationId());
+        postDetailDto.setIsOnline(postCreateDto.isOnline());
 
         try {
-            postRepository.savePostDetails(userUuid, postDetailsDto);
+            postRepository.savePostDetail(userUuid, postDetailDto);
         } catch (Exception ex) {
             log.error("savePostDetails() 중 실패", ex);
             throw new PostCreateException("DB에 PostDetails 저장 중 실패했습니다.");

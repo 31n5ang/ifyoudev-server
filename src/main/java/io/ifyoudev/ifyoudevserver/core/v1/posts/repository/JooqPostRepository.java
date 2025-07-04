@@ -1,6 +1,6 @@
 package io.ifyoudev.ifyoudevserver.core.v1.posts.repository;
 
-import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDetailsDto;
+import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDetailDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +35,8 @@ public class JooqPostRepository implements PostRepository {
     }
 
     @Override
-    public Long savePostDetails(String userUuid, PostDetailsDto postDetailsDto) {
-        PostDetailsRecord postDetailsRecord = dslContext.newRecord(POST_DETAILS, postDetailsDto);
+    public Long savePostDetail(String userUuid, PostDetailDto postDetailDto) {
+        PostDetailsRecord postDetailsRecord = dslContext.newRecord(POST_DETAILS, postDetailDto);
         postDetailsRecord.insert();
         return postDetailsRecord.getPostDetailId();
     }
