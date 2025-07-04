@@ -9,7 +9,7 @@ public interface PostRepository {
 
     Long save(PostDto postDto);
 
-    void savePostDetails(String userUuid, PostDetailsDto postDetailsDto);
+    Long savePostDetails(String userUuid, PostDetailsDto postDetailsDto);
 
-    void savePostTags(Long postId, List<Integer> postTagIds);
+    Long savePostTags(Long postId, List<Integer> postTagIds);
 }
