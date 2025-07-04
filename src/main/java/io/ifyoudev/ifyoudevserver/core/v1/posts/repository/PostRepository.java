@@ -11,5 +11,5 @@ public interface PostRepository {
 
     Long savePostDetail(String userUuid, PostDetailDto postDetailDto);
 
-    Long savePostTags(Long postId, List<Integer> postTagIds);
+    void savePostTags(Long postId, List<Integer> postTagIds);
 }
