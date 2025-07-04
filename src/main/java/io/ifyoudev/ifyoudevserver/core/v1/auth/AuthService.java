@@ -6,9 +6,9 @@ import io.ifyoudev.ifyoudevserver.core.v1.auth.exception.JwtTokenVerificationExc
 import io.ifyoudev.ifyoudevserver.core.v1.auth.exception.business.InvalidCredentialsException;
 import io.ifyoudev.ifyoudevserver.core.v1.auth.exception.business.InvalidTokenException;
 import io.ifyoudev.ifyoudevserver.core.v1.users.UserRepository;
+import io.ifyoudev.ifyoudevserver.core.v1.users.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.generated.tables.pojos.Users;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -39,12 +39,12 @@ public class AuthService {
 
         validateRefreshTokenInStorage(decodedJwtToken.getUserUuid(), refreshToken);
 
-        Users user = userRepository.findOneByUuid(decodedJwtToken.getUserUuid())
+        UserDto userDto = userRepository.findOneByUuid(decodedJwtToken.getUserUuid())
                 .orElseThrow(() -> new InvalidTokenException("해당 사용자가 존재하지 않습니다."));
 
         List<String> roleNames = userRepository.findRoleNamesByUuid(decodedJwtToken.getUserUuid());
 
-        AuthUser authUser = AuthUser.createWithUserUuid(user.getUuid(), roleNames);
+        AuthUser authUser = AuthUser.createWithUserUuid(userDto.getUuid(), roleNames);
 
         String newAccessToken = jwtTokenCreator.createAccessToken(authUser);
 
