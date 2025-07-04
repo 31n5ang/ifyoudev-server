@@ -2,10 +2,15 @@ package io.ifyoudev.ifyoudevserver.posts;
 
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDetailsDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDto;
+import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostTagDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.repository.JooqPostRepository;
+import org.assertj.core.api.Assertions;
 import org.jooq.DSLContext;
+import org.jooq.generated.tables.JPostTagMap;
+import org.jooq.generated.tables.JPostTags;
 import org.jooq.generated.tables.JPosts;
 import org.jooq.generated.tables.JUsers;
+import org.jooq.generated.tables.records.PostTagsRecord;
 import org.jooq.generated.tables.records.PostsRecord;
 import org.jooq.generated.tables.records.UsersRecord;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +22,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
