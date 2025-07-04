@@ -10,6 +10,7 @@ import org.jooq.generated.tables.JPostTagMap;
 import org.jooq.generated.tables.JPostTags;
 import org.jooq.generated.tables.JPosts;
 import org.jooq.generated.tables.records.PostDetailsRecord;
+import org.jooq.generated.tables.records.PostTagMapRecord;
 import org.jooq.generated.tables.records.PostsRecord;
 import org.springframework.stereotype.Repository;
 
@@ -41,8 +42,15 @@ public class JooqPostRepository implements PostRepository {
     }
 
     @Override
-    public Long savePostTags(Long postId, List<Integer> postTagIds) {
-        // TODO
-        return null;
+    public void savePostTags(Long postId, List<Integer> postTagIds) {
+        List<PostTagMapRecord> postTagMapRecords = postTagIds.stream()
+                .map(postTagId -> {
+                    PostTagMapRecord postTagMapRecord = dslContext.newRecord(POST_TAG_MAP);
+                    postTagMapRecord.setPostId(postId);
+                    postTagMapRecord.setTagId(Long.valueOf(postTagId));
+                    return postTagMapRecord;
+                })
+                .toList();
+        dslContext.batchInsert(postTagMapRecords).execute();
     }
 }
