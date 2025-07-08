@@ -11,10 +11,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+/**
+ * 범용적으로 쓰이는 DTO 입니다.
+ * @see org.jooq.generated.tables.pojos.PostDetails
+ */
 public class PostDetailDto {
     private Long postDetailId;
     private Long postId;
     private LocalDateTime deadline;
     private Boolean isOnline;
     private Integer locationId;
+    private Boolean isCompleted;
 }
