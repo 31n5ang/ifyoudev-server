@@ -2,6 +2,7 @@ package io.ifyoudev.ifyoudevserver.core.v1.posts.repository;
 
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDetailDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDto;
+import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostTagDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
@@ -15,6 +16,7 @@ import org.jooq.generated.tables.records.PostsRecord;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Repository
@@ -52,5 +54,34 @@ public class JooqPostRepository implements PostRepository {
                 })
                 .toList();
         dslContext.batchInsert(postTagMapRecords).execute();
+    }
+
+    @Override
+    public Optional<PostDto> findPostDtoByUuid(String postUuid) {
+        return dslContext
+                .selectFrom(POSTS)
+                .where(POSTS.UUID.eq(postUuid))
+                .fetchOptionalInto(PostDto.class);
+    }
+
+    @Override
+    public Optional<PostDetailDto> findPostDetailDtoByUuid(String postUuid) {
+        return dslContext
+                .select(POST_DETAILS.fields())
+                .from(POSTS)
+                .join(POST_DETAILS).on(POSTS.POST_ID.eq(POST_DETAILS.POST_ID))
+                .where(POSTS.UUID.eq(postUuid))
+                .fetchOptionalInto(PostDetailDto.class);
+    }
+
+    @Override
+    public List<PostTagDto> findAllPostTagDto(String postUuid) {
+        return dslContext
+                .select(POST_TAGS.fields())
+                .from(POSTS)
+                .join(POST_TAG_MAP).on(POSTS.POST_ID.eq(POST_TAG_MAP.POST_ID))
+                .join(POST_TAGS).on(POST_TAG_MAP.TAG_ID.eq(POST_TAGS.TAG_ID))
+                .where(POSTS.UUID.eq(postUuid))
+                .fetchInto(PostTagDto.class);
     }
 }
