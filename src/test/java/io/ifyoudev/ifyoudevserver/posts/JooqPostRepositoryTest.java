@@ -6,10 +6,8 @@ import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostTagDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.repository.JooqPostRepository;
 import org.assertj.core.api.Assertions;
 import org.jooq.DSLContext;
-import org.jooq.generated.tables.JPostTagMap;
-import org.jooq.generated.tables.JPostTags;
-import org.jooq.generated.tables.JPosts;
-import org.jooq.generated.tables.JUsers;
+import org.jooq.generated.tables.*;
+import org.jooq.generated.tables.records.PostTagMapRecord;
 import org.jooq.generated.tables.records.PostTagsRecord;
 import org.jooq.generated.tables.records.PostsRecord;
 import org.jooq.generated.tables.records.UsersRecord;
@@ -23,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -40,6 +39,25 @@ class JooqPostRepositoryTest {
 
     String testUserUuid;
     Long testUserId;
+
+    PostDto saveAndGetMockPostDto() {
+        PostDto postDto = new PostDto(
+                null,
+                UUID.randomUUID().toString(),
+                "제목입니다.",
+                "본문입니다.",
+                "요약입니다.",
+                testUserId,
+                false,
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
+        PostsRecord postsRecord = dslContext.newRecord(JPosts.POSTS, postDto);
+        postsRecord.insert();
+        postDto.setPostId(postsRecord.getPostId());
+        return postDto;
+    }
 
     @BeforeEach
     void setUp() {
@@ -68,6 +86,7 @@ class JooqPostRepositoryTest {
                 UUID.randomUUID().toString(),
                 "제목입니다.",
                 "본문입니다.",
+                "요약입니다.",
                 testUserId,
                 false,
                 LocalDateTime.now(),
@@ -85,28 +104,17 @@ class JooqPostRepositoryTest {
     @DisplayName("savePostDetail(..) 성공")
     void savePostDetailSuccess() {
         // given
-        PostDto postDto = new PostDto(
-                null,
-                UUID.randomUUID().toString(),
-                "제목입니다.",
-                "본문입니다.",
-                testUserId,
-                false,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        PostDto postDto = saveAndGetMockPostDto();
 
-        PostsRecord postsRecord = dslContext.newRecord(JPosts.POSTS, postDto);
-        postsRecord.insert();
-
-        final Long postId = postsRecord.getPostId();
+        final Long postId = postDto.getPostId();
 
         PostDetailDto postDetailDto = new PostDetailDto(
                 null,
                 postId,
                 LocalDateTime.now().plusDays(1),
                 true,
-                null
+                null,
+                false
         );
 
         // when
@@ -120,16 +128,7 @@ class JooqPostRepositoryTest {
     @DisplayName("savePostTags(..) 성공")
     void savePostTagsSuccess() {
         // given
-        PostDto postDto = new PostDto(
-                null,
-                UUID.randomUUID().toString(),
-                "제목입니다.",
-                "본문입니다.",
-                testUserId,
-                false,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
+        PostDto postDto = saveAndGetMockPostDto();
 
         List<PostTagsRecord> postTagsRecords = List.of(
                 dslContext.newRecord(JPostTags.POST_TAGS, new PostTagDto(1L, "Java")),
@@ -139,21 +138,89 @@ class JooqPostRepositoryTest {
         );
         dslContext.batchInsert(postTagsRecords).execute();
 
-        PostsRecord postsRecord = dslContext.newRecord(JPosts.POSTS, postDto);
-        postsRecord.insert();
 
-        final Long postId = postsRecord.getPostId();
-        final List<Integer> postTagIds = List.of(1, 2, 3, 5);
+        final Long postId = postDto.getPostId();
+        final List<Long> postTagIds = List.of(1L, 2L, 3L, 5L);
 
         // when
         jooqPostRepository.savePostTags(postId, postTagIds);
-        List<Integer> savedTagIds = dslContext
+        List<Long> savedTagIds = dslContext
                 .select(JPostTagMap.POST_TAG_MAP.TAG_ID)
                 .from(JPostTagMap.POST_TAG_MAP)
                 .where(JPostTagMap.POST_TAG_MAP.POST_ID.eq(postId))
-                .fetchInto(Integer.class);
+                .fetchInto(Long.class);
 
         // then
-        Assertions.assertThat(savedTagIds).contains(1, 2, 3, 5);
+        Assertions.assertThat(savedTagIds).contains(1L, 2L, 3L, 5L);
+    }
+
+    @Test
+    @DisplayName("findPostDtoByUuid(..) 성공")
+    void findPostDtoByUuidSuccess() {
+        // given
+        PostDto postDto = saveAndGetMockPostDto();
+
+        // when
+        Optional<PostDto> optionalPostDtoByUuid = jooqPostRepository.findPostDtoByUuid(postDto.getUuid());
+
+        // then
+        assertThat(optionalPostDtoByUuid).isNotEmpty();
+        assertThat(optionalPostDtoByUuid.get().getPostId()).isEqualTo(postDto.getPostId());
+    }
+
+    @Test
+    @DisplayName("findPostDetailDtoByUuid(..) 성공")
+    void findPostDetailDtoByUuidSuccess() {
+        // given
+        PostDto postDto = saveAndGetMockPostDto();
+
+        PostDetailDto postDetailDto = PostDetailDto.builder()
+                .postId(postDto.getPostId())
+                .deadline(LocalDateTime.now().plusDays(1))
+                .isOnline(true)
+                .locationId(null)
+                .isCompleted(false)
+                .build();
+
+        dslContext.newRecord(JPostDetails.POST_DETAILS, postDetailDto).insert();
+
+        // when
+        Optional<PostDetailDto> findPostDetailDto = jooqPostRepository.findPostDetailDtoByUuid(postDto.getUuid());
+
+        // then
+        assertThat(findPostDetailDto).isNotEmpty();
+        assertThat(findPostDetailDto.get().getPostDetailId()).isNotNull();
+        assertThat(findPostDetailDto.get().getPostId()).isEqualTo(postDto.getPostId());
+    }
+
+    @Test
+    @DisplayName("findAllPostTagDto(..) 성공")
+    void findAllPostTagDtoSuccess() {
+        // given
+        PostDto postDto = saveAndGetMockPostDto();
+
+        List<PostTagsRecord> postTagsRecords = List.of(
+                dslContext.newRecord(JPostTags.POST_TAGS, new PostTagDto(1L, "Java")),
+                dslContext.newRecord(JPostTags.POST_TAGS, new PostTagDto(2L, "Python")),
+                dslContext.newRecord(JPostTags.POST_TAGS, new PostTagDto(3L, "C++")),
+                dslContext.newRecord(JPostTags.POST_TAGS, new PostTagDto(5L, "Kotlin"))
+        );
+        dslContext.batchInsert(postTagsRecords).execute();
+
+        List<PostTagMapRecord> postTagMapRecords = List.of(
+                dslContext.newRecord(JPostTagMap.POST_TAG_MAP).setPostId(postDto.getPostId()).setTagId(1L),
+                dslContext.newRecord(JPostTagMap.POST_TAG_MAP).setPostId(postDto.getPostId()).setTagId(2L),
+                dslContext.newRecord(JPostTagMap.POST_TAG_MAP).setPostId(postDto.getPostId()).setTagId(3L),
+                dslContext.newRecord(JPostTagMap.POST_TAG_MAP).setPostId(postDto.getPostId()).setTagId(5L)
+        );
+        dslContext.batchInsert(postTagMapRecords).execute();
+
+
+        // when
+        List<PostTagDto> postTagDtos = jooqPostRepository.findAllPostTagDto(postDto.getUuid());
+        List<Long> postTagIds = postTagDtos.stream().map(PostTagDto::getTagId).toList();
+
+        // then
+        Assertions.assertThat(postTagIds).contains(1L, 2L, 3L, 5L);
     }
 }
