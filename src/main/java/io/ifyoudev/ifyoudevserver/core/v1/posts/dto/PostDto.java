@@ -19,6 +19,7 @@ public class PostDto {
     private String uuid;
     private String title;
     private String content;
+    private String summary;
     private Long userId;
     private Boolean isDeleted;
     private LocalDateTime createdAt;
