@@ -41,7 +41,7 @@ class PostCreateManagerTest {
                 LocalDateTime.now().plusDays(1),
                 false,
                 3,
-                List.of(1, 2)
+                List.of(1L, 2L)
         );
         PostCreateManager postCreateManager = new PostCreateManager(postRepository, userRepository);
         when(userRepository.findOneByUuid(eq(userUuid))).thenReturn(Optional.of(userDto));
@@ -71,7 +71,7 @@ class PostCreateManagerTest {
                 LocalDateTime.now().plusDays(1),
                 false,
                 3,
-                List.of(1, 2)
+                List.of(1L, 2L)
         );
         Long postId = 1L;
         PostCreateManager postCreateManager = new PostCreateManager(postRepository, userRepository);
