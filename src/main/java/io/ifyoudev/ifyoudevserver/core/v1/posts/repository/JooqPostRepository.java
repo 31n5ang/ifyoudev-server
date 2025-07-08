@@ -42,12 +42,12 @@ public class JooqPostRepository implements PostRepository {
     }
 
     @Override
-    public void savePostTags(Long postId, List<Integer> postTagIds) {
+    public void savePostTags(Long postId, List<Long> postTagIds) {
         List<PostTagMapRecord> postTagMapRecords = postTagIds.stream()
                 .map(postTagId -> {
                     PostTagMapRecord postTagMapRecord = dslContext.newRecord(POST_TAG_MAP);
                     postTagMapRecord.setPostId(postId);
-                    postTagMapRecord.setTagId(Long.valueOf(postTagId));
+                    postTagMapRecord.setTagId(postTagId);
                     return postTagMapRecord;
                 })
                 .toList();

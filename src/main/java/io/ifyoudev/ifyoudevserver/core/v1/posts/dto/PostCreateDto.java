@@ -26,5 +26,5 @@ public record PostCreateDto(
 
         Integer locationId,
 
-        List<Integer> tagIds
+        List<Long> tagIds
 ) {}
