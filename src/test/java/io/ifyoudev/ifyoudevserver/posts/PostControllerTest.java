@@ -58,14 +58,7 @@ public class PostControllerTest {
     void createPostSuccessTest() throws Exception {
         // given
         String userUuid = UUID.randomUUID().toString();
-        PostCreateDto postCreateDto = new PostCreateDto(
-                "Ifyoudev 프론트엔드 팀원 모집합니다.",
-                "같이 열심히 해봐요",
-                LocalDateTime.now().plusDays(1),
-                false,
-                3,
-                List.of(1, 2)
-        );
+        PostCreateDto postCreateDto = createMockPostCreateDto("Ifyoudev 프론트엔드 팀원 모집합니다.", "같이 열심히 해봐요");
         Long postId = 1L;
 
         PostCreateSuccessDto postCreateSuccessDto = new PostCreateSuccessDto(postId);
@@ -93,14 +86,7 @@ public class PostControllerTest {
     void createPostAuthenticateFailedTest() throws Exception {
         // given
         String userUuid = UUID.randomUUID().toString();
-        PostCreateDto postCreateDto = new PostCreateDto(
-                "Ifyoudev 프론트엔드 팀원 모집합니다.",
-                "같이 열심히 해봐요",
-                LocalDateTime.now().plusDays(1),
-                false,
-                3,
-                List.of(1, 2)
-        );
+        PostCreateDto postCreateDto = createMockPostCreateDto("Ifyoudev 프론트엔드 팀원 모집합니다.", "같이 열심히 해봐요");
         Long postId = 1L;
 
         PostCreateSuccessDto postCreateSuccessDto = new PostCreateSuccessDto(postId);
@@ -124,14 +110,7 @@ public class PostControllerTest {
     void createPostInvalidTitleAndContentFailedTest() throws Exception {
         // given
         String userUuid = UUID.randomUUID().toString();
-        PostCreateDto postCreateDto = new PostCreateDto(
-                " ",
-                " ",
-                LocalDateTime.now().plusDays(1),
-                false,
-                3,
-                List.of(1, 2)
-        );
+        PostCreateDto postCreateDto = createMockPostCreateDto(" ", " ");
         Long postId = 1L;
 
         PostCreateSuccessDto postCreateSuccessDto = new PostCreateSuccessDto(postId);
@@ -154,5 +133,16 @@ public class PostControllerTest {
                         preprocessRequest(prettyPrint()),
                         preprocessResponse(prettyPrint())
                 ));
+    }
+
+    private static PostCreateDto createMockPostCreateDto(String title, String content) {
+        return new PostCreateDto(
+                title,
+                content,
+                LocalDateTime.now().plusDays(1),
+                false,
+                3,
+                List.of(1L, 2L)
+        );
     }
 }
