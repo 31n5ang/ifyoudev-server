@@ -4,12 +4,12 @@ import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDetailDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostTagDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.repository.JooqPostRepository;
+import io.ifyoudev.ifyoudevserver.code.PostMockHelper;
 import org.assertj.core.api.Assertions;
 import org.jooq.DSLContext;
 import org.jooq.generated.tables.*;
 import org.jooq.generated.tables.records.PostTagMapRecord;
 import org.jooq.generated.tables.records.PostTagsRecord;
-import org.jooq.generated.tables.records.PostsRecord;
 import org.jooq.generated.tables.records.UsersRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,22 +41,7 @@ class JooqPostRepositoryTest {
     Long testUserId;
 
     PostDto saveAndGetMockPostDto() {
-        PostDto postDto = new PostDto(
-                null,
-                UUID.randomUUID().toString(),
-                "제목입니다.",
-                "본문입니다.",
-                "요약입니다.",
-                testUserId,
-                false,
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
-        PostsRecord postsRecord = dslContext.newRecord(JPosts.POSTS, postDto);
-        postsRecord.insert();
-        postDto.setPostId(postsRecord.getPostId());
-        return postDto;
+        return PostMockHelper.saveAndGetDefaultMockPostDto(testUserId, dslContext);
     }
 
     @BeforeEach
