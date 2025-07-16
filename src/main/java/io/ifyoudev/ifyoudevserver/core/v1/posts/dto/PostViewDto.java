@@ -1,5 +1,6 @@
 package io.ifyoudev.ifyoudevserver.core.v1.posts.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class PostViewDto {
     private LocalDateTime lastModifiedAt;
 
     // 작성자(User) 정보
+    @JsonProperty("author")
     private AuthorDto authorDto;
 
     // Post Details 정보
