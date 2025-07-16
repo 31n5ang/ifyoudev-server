@@ -3,6 +3,7 @@ package io.ifyoudev.ifyoudevserver.core.v1.posts;
 import io.ifyoudev.ifyoudevserver.core.v1.auth.AuthUser;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostCreateDto;
 import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostCreateSuccessDto;
+import io.ifyoudev.ifyoudevserver.core.v1.posts.dto.PostViewDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +20,12 @@ public class PostController {
 
     private final PostService postService;
 
-    @GetMapping
-    public ResponseEntity<?> getPosts() {
-        return null;
+    @GetMapping("/view/{postUuid}")
+    public ResponseEntity<?> getPosts(
+            @PathVariable String postUuid
+    ) {
+        PostViewDto postViewDto = postService.findPostView(postUuid);
+        return ResponseEntity.ok(postViewDto);
     }
 
     @PreAuthorize("hasAnyRole('ROLE_USER')")
